@@ -1,0 +1,6 @@
+{
+  "name": "Fif-Cards",
+  "description": "Create FIFA cards, coaches, and 11-player formations offline",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

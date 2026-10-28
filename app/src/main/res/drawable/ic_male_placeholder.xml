@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <!-- Male athlete silhouette placeholder -->
+    <path
+        android:fillColor="#334155"
+        android:pathData="M60,18 C46,18 36,29 36,44 C36,58 45,69 57,71 C40,76 22,90 18,110 L102,110 C98,90 80,76 63,71 C75,69 84,58 84,44 C84,29 74,18 60,18 Z" />
+    <!-- Subtle athletic collar detail -->
+    <path
+        android:fillColor="#475569"
+        android:pathData="M48,78 L60,90 L72,78 C68,82 64,84 60,84 C56,84 52,82 48,78 Z" />
+</vector>
