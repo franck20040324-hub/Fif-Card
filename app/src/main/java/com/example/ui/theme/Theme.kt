@@ -7,34 +7,36 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+// Pure Black Dark Mode
 private val DarkColorScheme = darkColorScheme(
     primary = GoldPrimary,
     onPrimary = Color.Black,
     secondary = GoldSecondary,
     onSecondary = Color.Black,
     tertiary = PositionMID,
-    background = DarkBackground,
-    onBackground = DarkOnBackground,
-    surface = DarkSurface,
-    onSurface = DarkOnBackground,
-    surfaceVariant = DarkSurfaceElevated,
-    onSurfaceVariant = Color(0xFFCBD5E1),
-    outline = DarkBorder
+    background = TrueBlackBackground,
+    onBackground = TrueBlackOnBackground,
+    surface = TrueBlackSurface,
+    onSurface = TrueBlackOnBackground,
+    surfaceVariant = TrueBlackSurfaceElevated,
+    onSurfaceVariant = Color(0xFFD1D5DB),
+    outline = TrueBlackBorder
 )
 
+// Pure White Day Mode
 private val LightColorScheme = lightColorScheme(
-    primary = LightPrimary,
-    onPrimary = Color.White,
-    secondary = LightSecondary,
-    onSecondary = Color.White,
+    primary = GoldPrimary,
+    onPrimary = Color.Black,
+    secondary = GoldSecondary,
+    onSecondary = Color.Black,
     tertiary = PositionDEF,
-    background = LightBackground,
-    onBackground = LightOnBackground,
-    surface = LightSurface,
-    onSurface = LightOnBackground,
-    surfaceVariant = LightSurfaceElevated,
-    onSurfaceVariant = Color(0xFF475569),
-    outline = LightBorder
+    background = PureWhiteBackground,
+    onBackground = PureWhiteOnBackground,
+    surface = PureWhiteSurface,
+    onSurface = PureWhiteOnBackground,
+    surfaceVariant = PureWhiteSurfaceElevated,
+    onSurfaceVariant = Color(0xFF374151),
+    outline = PureWhiteBorder
 )
 
 enum class ThemeMode {

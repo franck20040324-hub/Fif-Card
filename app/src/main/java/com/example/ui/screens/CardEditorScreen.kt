@@ -21,7 +21,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.model.BigSevenLeagues
 import com.example.data.model.PlayerCard
+import com.example.data.model.WorldFlags
 import com.example.ui.components.FifaPlayerCard
 import com.example.ui.components.getPositionCategory
 import com.example.ui.components.getPositionColor
@@ -34,6 +36,7 @@ import kotlinx.coroutines.launch
 data class PresetItem(val name: String, val badge: String)
 
 val PRESET_NATIONS = listOf(
+    PresetItem("Palestine", "🇵🇸"),
     PresetItem("Brazil", "🇧🇷"),
     PresetItem("Argentina", "🇦🇷"),
     PresetItem("France", "🇫🇷"),
@@ -59,21 +62,18 @@ val PRESET_CLUBS = listOf(
     PresetItem("Paris Saint-Germain", "🗼"),
     PresetItem("Liverpool", "🦅"),
     PresetItem("Inter Milan", "⚫🔵"),
+    PresetItem("Benfica", "🦅"),
+    PresetItem("Sporting CP", "🦁"),
+    PresetItem("Ajax", "❌"),
+    PresetItem("PSV Eindhoven", "🔴⚪"),
     PresetItem("Al Hilal", "🔵"),
     PresetItem("Al Nassr", "🟡"),
     PresetItem("Al Ahly", "🦅")
 )
 
-val PRESET_LEAGUES = listOf(
-    PresetItem("Premier League", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
-    PresetItem("La Liga", "🇪🇸"),
-    PresetItem("Serie A", "🇮🇹"),
-    PresetItem("Bundesliga", "🇩🇪"),
-    PresetItem("Ligue 1", "🇫🇷"),
-    PresetItem("Saudi Pro League", "🇸🇦"),
-    PresetItem("UEFA Champions League", "⭐"),
-    PresetItem("MLS", "🇺🇸")
-)
+val BIG_SEVEN_LEAGUES = BigSevenLeagues.list.map {
+    PresetItem(it.name, it.badge)
+}
 
 val ALL_POSITIONS = listOf("GK", "CB", "LB", "RB", "CDM", "CM", "CAM", "LM", "RM", "LW", "RW", "ST")
 
@@ -85,6 +85,10 @@ fun CardEditorScreen(
     val language by viewModel.language.collectAsState()
     val editingPlayer by viewModel.editingPlayer.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
+    var showWorldFlagsDialog by remember { mutableStateOf(false) }
+    var flagSearchQuery by remember { mutableStateOf("") }
+    var selectedRegion by remember { mutableStateOf("All") }
 
     // Form states
     var name by remember(editingPlayer) { mutableStateOf(editingPlayer?.name ?: "") }
@@ -339,11 +343,25 @@ fun CardEditorScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("Popular Nations:", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Popular Nations:", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(
+                            onClick = { showWorldFlagsDialog = true },
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                        ) {
+                            Icon(Icons.Default.Public, contentDescription = null, modifier = Modifier.size(16.dp), tint = GoldPrimary)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("All World Flags (100+)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = GoldPrimary)
+                        }
+                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 4.dp),
+                            .padding(top = 2.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         PRESET_NATIONS.take(6).forEach { nation ->
@@ -370,14 +388,14 @@ fun CardEditorScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("Popular Clubs:", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Top European Clubs:", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 4.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        PRESET_CLUBS.take(5).forEach { club ->
+                        PRESET_CLUBS.take(6).forEach { club ->
                             PresetChip(
                                 label = "${club.badge} ${club.name.split(" ").last()}",
                                 selected = clubName == club.name,
@@ -390,7 +408,7 @@ fun CardEditorScreen(
                     }
                 }
 
-                // League Field + Quick presets
+                // League Field + Big 7 European Leagues Presets
                 Column {
                     OutlinedTextField(
                         value = leagueName,
@@ -401,14 +419,33 @@ fun CardEditorScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("Top Leagues:", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Big 7 European Leagues:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = GoldPrimary)
+                    // Row 1 of Big 7
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 4.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        PRESET_LEAGUES.take(4).forEach { league ->
+                        BIG_SEVEN_LEAGUES.take(4).forEach { league ->
+                            PresetChip(
+                                label = "${league.badge} ${league.name}",
+                                selected = leagueName == league.name,
+                                onClick = {
+                                    leagueName = league.name
+                                    leagueBadge = league.badge
+                                }
+                            )
+                        }
+                    }
+                    // Row 2 of Big 7
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        BIG_SEVEN_LEAGUES.drop(4).forEach { league ->
                             PresetChip(
                                 label = "${league.badge} ${league.name}",
                                 selected = leagueName == league.name,
@@ -462,6 +499,128 @@ fun CardEditorScreen(
         }
 
         Spacer(modifier = Modifier.height(40.dp))
+    }
+
+    // World Flags Selection Dialog
+    if (showWorldFlagsDialog) {
+        val filteredCountries = remember(flagSearchQuery, selectedRegion) {
+            WorldFlags.countries.filter { country ->
+                val matchesQuery = flagSearchQuery.isBlank() ||
+                        country.name.contains(flagSearchQuery, ignoreCase = true)
+                val matchesRegion = selectedRegion == "All" || country.region.equals(selectedRegion, ignoreCase = true)
+                matchesQuery && matchesRegion
+            }
+        }
+
+        val regions = listOf("All", "Middle East", "Europe", "South America", "Africa", "North America", "Asia", "Oceania")
+
+        androidx.compose.ui.window.Dialog(onDismissRequest = { showWorldFlagsDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 580.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "World Flags (${WorldFlags.countries.size} Nations)",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        IconButton(onClick = { showWorldFlagsDialog = false }) {
+                            Icon(Icons.Default.Close, contentDescription = "Close")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = flagSearchQuery,
+                        onValueChange = { flagSearchQuery = it },
+                        placeholder = { Text("Search country...", fontSize = 13.sp) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        trailingIcon = {
+                            if (flagSearchQuery.isNotEmpty()) {
+                                IconButton(onClick = { flagSearchQuery = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Region Filter Chips
+                    androidx.compose.foundation.lazy.LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(regions.size) { idx ->
+                            val r = regions[idx]
+                            FilterChip(
+                                selected = selectedRegion == r,
+                                onClick = { selectedRegion = r },
+                                label = { Text(r, fontSize = 11.sp) }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Countries list
+                    androidx.compose.foundation.lazy.LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(filteredCountries.size) { idx ->
+                            val country = filteredCountries[idx]
+                            Surface(
+                                onClick = {
+                                    nationality = country.name
+                                    nationalityFlag = country.flag
+                                    showWorldFlagsDialog = false
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(country.flag, fontSize = 24.sp)
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = country.name,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = country.region,
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

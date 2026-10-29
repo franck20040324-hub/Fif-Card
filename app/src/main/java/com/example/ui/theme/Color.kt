@@ -5,20 +5,20 @@ import androidx.compose.ui.graphics.Color
 // Primary Gold & Slate palette
 val GoldPrimary = Color(0xFFE5A93C)
 val GoldSecondary = Color(0xFFFFD54F)
-val DarkBackground = Color(0xFF0D0F14)
-val DarkSurface = Color(0xFF151922)
-val DarkSurfaceElevated = Color(0xFF1E2430)
-val DarkOnBackground = Color(0xFFF1F5F9)
-val DarkBorder = Color(0xFF2E384D)
 
-// Light theme palette
-val LightPrimary = Color(0xFFB47D16)
-val LightSecondary = Color(0xFFC99424)
-val LightBackground = Color(0xFFF8FAFC)
-val LightSurface = Color(0xFFFFFFFF)
-val LightSurfaceElevated = Color(0xFFEDF2F7)
-val LightOnBackground = Color(0xFF0F172A)
-val LightBorder = Color(0xFFCBD5E1)
+// True Black Dark Mode palette
+val TrueBlackBackground = Color(0xFF000000)
+val TrueBlackSurface = Color(0xFF121212)
+val TrueBlackSurfaceElevated = Color(0xFF1E1E1E)
+val TrueBlackOnBackground = Color(0xFFFFFFFF)
+val TrueBlackBorder = Color(0xFF2E2E2E)
+
+// Pure White Day Mode palette
+val PureWhiteBackground = Color(0xFFFFFFFF)
+val PureWhiteSurface = Color(0xFFF8F9FA)
+val PureWhiteSurfaceElevated = Color(0xFFECEFF1)
+val PureWhiteOnBackground = Color(0xFF000000)
+val PureWhiteBorder = Color(0xFFE2E8F0)
 
 // FIFA Card Position Colors
 val PositionGK = Color(0xFFFFB300)   // Amber/Gold for Goalkeepers

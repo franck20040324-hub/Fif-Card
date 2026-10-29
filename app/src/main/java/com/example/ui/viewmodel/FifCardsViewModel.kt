@@ -6,10 +6,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.audio.MusicPlayerManager
 import com.example.data.model.CoachCard
+import com.example.data.model.FormationSlot
 import com.example.data.model.PlayerCard
 import com.example.data.model.PlayerSortMethod
+import com.example.data.model.PositionCategory
 import com.example.data.model.TeamFormation
 import com.example.data.repository.FifCardsRepository
+import com.example.ui.components.FormationPresets
 import com.example.ui.components.getPositionCategory
 import com.example.ui.theme.AppLanguage
 import com.example.ui.theme.ThemeMode
@@ -105,6 +108,7 @@ class FifCardsViewModel(application: Application) : AndroidViewModel(application
     init {
         // Snapdragon 662 gradual startup sequence to avoid CPU overloading
         viewModelScope.launch {
+            repository.ensureBigSevenPlayers()
             delay(120)
             _startupStage.value = 1
             delay(180)
@@ -201,6 +205,58 @@ class FifCardsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             repository.saveFormation(updated)
             _selectingSlotIndex.value = null
+        }
+    }
+
+    fun swapSlots(fromSlot: Int, toSlot: Int) {
+        val formation = currentFormation.value ?: return
+        if (fromSlot !in 0..10 || toSlot !in 0..10 || fromSlot == toSlot) return
+        val currentIds = formation.startingPlayerIds.split(",").toMutableList()
+        while (currentIds.size < 11) {
+            currentIds.add("0")
+        }
+        val temp = currentIds[fromSlot]
+        currentIds[fromSlot] = currentIds[toSlot]
+        currentIds[toSlot] = temp
+        val updated = formation.copy(startingPlayerIds = currentIds.joinToString(","))
+        viewModelScope.launch {
+            repository.saveFormation(updated)
+            _statusMessage.value = "Swapped slot positions!"
+        }
+    }
+
+    fun autoFillBestStartingEleven() {
+        val formation = currentFormation.value ?: return
+        val players = allPlayers.value
+        if (players.isEmpty()) return
+        
+        val slots = FormationPresets.getSlotsForFormation(formation.formationType)
+        val assignedIds = mutableListOf<String>()
+        val usedPlayerIds = mutableSetOf<Long>()
+        
+        slots.forEach { slot: FormationSlot ->
+            val targetCategory: PositionCategory = slot.category
+            val bestPlayer = players
+                .filter { it.id !in usedPlayerIds }
+                .sortedWith(
+                    compareByDescending<PlayerCard> { p ->
+                        if (getPositionCategory(p.position) == targetCategory) 1 else 0
+                    }.thenByDescending { p -> p.rating }
+                )
+                .firstOrNull()
+            
+            if (bestPlayer != null) {
+                assignedIds.add(bestPlayer.id.toString())
+                usedPlayerIds.add(bestPlayer.id)
+            } else {
+                assignedIds.add("0")
+            }
+        }
+        
+        val updated = formation.copy(startingPlayerIds = assignedIds.joinToString(","))
+        viewModelScope.launch {
+            repository.saveFormation(updated)
+            _statusMessage.value = "Starting XI filled with top players!"
         }
     }
 

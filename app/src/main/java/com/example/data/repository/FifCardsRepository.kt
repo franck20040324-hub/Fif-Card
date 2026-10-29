@@ -34,6 +34,13 @@ class FifCardsRepository(private val context: Context) {
         playerDao.insertPlayer(player)
     }
 
+    suspend fun ensureBigSevenPlayers() = withContext(Dispatchers.IO) {
+        val existing = playerDao.getAllPlayersList()
+        if (existing.isEmpty() || existing.none { it.id == 101L }) {
+            playerDao.insertAll(com.example.data.model.BigSevenPlayersRoster.players)
+        }
+    }
+
     suspend fun deletePlayer(player: PlayerCard) = withContext(Dispatchers.IO) {
         // Also remove local private image if present
         player.photoPath?.let { path ->

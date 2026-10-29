@@ -28,6 +28,7 @@ import com.example.data.model.CoachCard
 import com.example.data.model.PlayerCard
 import com.example.ui.components.CompactFifaCard
 import com.example.ui.components.FifaCoachCard
+import com.example.ui.components.FormationGridView
 import com.example.ui.components.FormationPresets
 import com.example.ui.components.SoccerPitchView
 import com.example.ui.theme.AppLanguage
@@ -176,17 +177,67 @@ fun FormationsScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // Tactical Soccer Pitch with 11 Players
-        formation?.let { f ->
-            SoccerPitchView(
-                formationType = f.formationType,
-                startingPlayers = startingPlayerMap,
-                onSlotClick = { slotIndex ->
-                    viewModel.openSlotSelection(slotIndex)
+        // View Mode Toggle (Grid UI vs Tactical Pitch) & Auto-Fill Action
+        var viewMode by remember { mutableStateOf(0) } // 0 = Formation Grid, 1 = Pitch View
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SingleChoiceSegmentedButtonRow {
+                SegmentedButton(
+                    selected = viewMode == 0,
+                    onClick = { viewMode = 0 },
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
+                ) {
+                    Text("Grid Layout", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
-            )
+                SegmentedButton(
+                    selected = viewMode == 1,
+                    onClick = { viewMode = 1 },
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+                ) {
+                    Text("Pitch View", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            FilledTonalButton(
+                onClick = { viewModel.autoFillBestStartingEleven() },
+                shape = RoundedCornerShape(10.dp),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+            ) {
+                Icon(Icons.Default.AutoFixHigh, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Auto-Fill XI", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // 11 Player Cards Layout: Either Grid or Soccer Pitch
+        formation?.let { f ->
+            if (viewMode == 0) {
+                // Drag-and-drop or slot-selection UI grid
+                FormationGridView(
+                    formationType = f.formationType,
+                    startingPlayers = startingPlayerMap,
+                    onSlotClick = { slotIndex -> viewModel.openSlotSelection(slotIndex) },
+                    onSwapSlots = { from, to -> viewModel.swapSlots(from, to) },
+                    onRemoveFromSlot = { slotIndex -> viewModel.removePlayerFromSlot(slotIndex) }
+                )
+            } else {
+                // Tactical Soccer Pitch with 11 Players
+                SoccerPitchView(
+                    formationType = f.formationType,
+                    startingPlayers = startingPlayerMap,
+                    onSlotClick = { slotIndex ->
+                        viewModel.openSlotSelection(slotIndex)
+                    }
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(18.dp))

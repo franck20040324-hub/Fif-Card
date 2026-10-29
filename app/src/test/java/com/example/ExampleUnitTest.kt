@@ -51,4 +51,39 @@ class FifCardsUnitTest {
         assertEquals("Goalkeeper", AppStrings.get("pos_gk", AppLanguage.ENGLISH))
         assertEquals("حارس مرمى", AppStrings.get("pos_gk", AppLanguage.ARABIC))
     }
+
+    @Test
+    fun testBigSevenLeagues() {
+        val names = com.example.data.model.BigSevenLeagues.list.map { it.name }
+        assertEquals(7, names.size)
+        assertTrue(names.contains("Premier League"))
+        assertTrue(names.contains("La Liga"))
+        assertTrue(names.contains("Serie A"))
+        assertTrue(names.contains("Bundesliga"))
+        assertTrue(names.contains("Ligue 1"))
+        assertTrue(names.contains("Primeira Liga"))
+        assertTrue(names.contains("Eredivisie"))
+    }
+
+    @Test
+    fun testWorldFlagsExcludesIsrael() {
+        val list = com.example.data.model.WorldFlags.countries
+        assertTrue(list.isNotEmpty())
+        assertTrue("World flags list must NOT contain Israel", list.none { it.name.equals("Israel", ignoreCase = true) })
+        assertTrue("World flags list must contain Palestine", list.any { it.name.equals("Palestine", ignoreCase = true) })
+    }
+
+    @Test
+    fun testBigSevenPlayersRosterCoversAllSevenLeagues() {
+        val roster = com.example.data.model.BigSevenPlayersRoster.players
+        assertTrue("Roster should have plenty of players", roster.size >= 25)
+        val leagues = roster.map { it.leagueName }.toSet()
+        assertTrue(leagues.contains("Premier League"))
+        assertTrue(leagues.contains("La Liga"))
+        assertTrue(leagues.contains("Serie A"))
+        assertTrue(leagues.contains("Bundesliga"))
+        assertTrue(leagues.contains("Ligue 1"))
+        assertTrue(leagues.contains("Primeira Liga"))
+        assertTrue(leagues.contains("Eredivisie"))
+    }
 }
